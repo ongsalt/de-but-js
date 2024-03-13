@@ -4,7 +4,7 @@
  */
 
 export class Flow<T> {
-    subscriber: ((value: T, oldValue: T) => any)[] = []
+    subscriber = new Set<(value: T, oldValue: T) => any>()
 
     constructor(private _value: T) {}
 
@@ -20,14 +20,18 @@ export class Flow<T> {
     }
 
     subscribe(fn: (value: T, oldValue: T) => any) {
-        this.subscriber.push(fn)
+        this.subscriber.add(fn)
+    }
+
+    unsubscribe(fn: (value: T, oldValue: T) => any) {
+        this.subscriber.delete(fn)
     }
 
     /**
      * T must be primitive 
      */
     on(value: T, fn: (value: T) => any) {
-        this.subscriber.push(newValue => {
+        this.subscriber.add(newValue => {
             if (newValue === value) {
                 fn(newValue)
             }
