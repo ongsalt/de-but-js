@@ -4,9 +4,9 @@
  */
 
 export class Flow<T> {
-    subscriber = new Set<(value: T, oldValue: T) => any>()
+    subscriber = new Set<(value: T, oldValue: T | undefined) => any>()
 
-    constructor(private _value: T) {}
+    constructor(protected _value: T) {}
 
     public get value(): T {
         return this._value
@@ -19,11 +19,14 @@ export class Flow<T> {
         this._value = newValue
     }
 
-    subscribe(fn: (value: T, oldValue: T) => any) {
+    subscribe(fn: (value: T, oldValue: T | undefined) => any, fetchFirst = false) {
         this.subscriber.add(fn)
+        if (fetchFirst) {
+            fn(this.value, undefined)
+        }
     }
 
-    unsubscribe(fn: (value: T, oldValue: T) => any) {
+    unsubscribe(fn: (value: T, oldValue: T | undefined) => any) {
         this.subscriber.delete(fn)
     }
 

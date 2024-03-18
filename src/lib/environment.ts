@@ -1,10 +1,18 @@
 import { Menubar } from "../ui/menubar"
 import { Taskbar } from "../ui/taskbar"
 import { Flow } from "./flow"
-import { Window2 } from "./windows"
+import { Window2 } from "../ui/windows"
+import { Application } from "../ui/application"
+
+
+/**
+ * TODO
+ * - Properly singleton
+ */
 
 export class DesktopEnvironment {
     windows: Window2[] = []
+    apps: Application[] = []
     wmRoot: HTMLElement
     menubar: Menubar
     taskbar: Taskbar
@@ -31,18 +39,39 @@ export class DesktopEnvironment {
 
         this.activeWindow.subscribe((w, oldW) => {
             oldW?.isMaximized.unsubscribe(setIsMaximized)
-
-            console.log(w, oldW)
             this.isMaximize.value = w?.isMaximized.value ?? false
             w?.isMaximized.subscribe(setIsMaximized)
         })
     }
 
     newWindow() {
-        const newWindow = new Window2()
-        newWindow.mount(this.wmRoot)
-        // Should only care about focused window
+        const newWindow = new Window2(new Application())
+        this.onWindowCreated(newWindow)
+    }
 
+    onWindowCreated(newWindow: Window2) {
         this.windows.push(newWindow)
+        newWindow.mount(this.wmRoot)
+        this.taskbar.update()
+    }
+
+    onWindowDestroy(w: Window2) {
+        this.windows = this.windows.filter(it => it !== w)
+        this.taskbar.update()
+    }
+    
+    closeWindow(window: Window2) {
+        this.windows = this.windows.filter(it => it !== window)
+    }
+
+    // Need to set id for an app as well
+    registerApp<App extends Application>(App: new (...args: any) => App) {
+
+        const app = new App()
+        this.apps.push(app)
+        // console.log('registered', App)
+        
+        this.taskbar.update()
+        // Update taskbar
     }
 }

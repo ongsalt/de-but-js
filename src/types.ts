@@ -8,7 +8,7 @@ export interface WindowInfo {
     isMaximized: Flow<boolean>,
     isMinimized: Flow<boolean>,
     zIndex: Flow<number>,
-    element: HTMLElement,
+    windowFrame: HTMLElement,
 }
 
 export interface Position {

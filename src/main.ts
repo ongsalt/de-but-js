@@ -1,4 +1,4 @@
-import { environment } from './lib/init'
 import './style.css'
 
-environment
+import './lib/init'
+
